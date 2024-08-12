@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Firebase_RealtimeDB_Authentication</title>
+</head>
+<body>
+
+<div class="flex justify-center items-center w-full h-screen bg-blue-300">
+    <button id="login" class="w-32 h-16 text-orange-300 bg-gray-700 hover:text-white-300">LOGIN</button>
+</div>
+
+
+</body>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script type="module">
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyCmchfH-ms87NXzy5rGffYJMn-V8vrIdMM",
+    authDomain: "gsdemo-1cc9a.firebaseapp.com",
+    databaseURL: "https://gsdemo-1cc9a-default-rtdb.firebaseio.com",
+    projectId: "gsdemo-1cc9a",
+    storageBucket: "gsdemo-1cc9a.appspot.com",
+    messagingSenderId: "1078422465971",
+    appId: "1:1078422465971:web:e13a3ad8f201210a342fc6"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+
+
+//GoogleAuth（認証用）
+const provider = new GoogleAuthProvider();
+provider.addScope('https://www.googleapis.com/auth/contacts.readonly');
+const auth = getAuth();
+
+//login処理
+$("#login").on("click", function(){
+    signInWithPopup(auth, provider).then((result) => {
+        //login語のページ遷移
+        location.href="simple.html"; //遷移先のページ
+    // // This gives you a Google Access Token. You can use it to access the Google API.
+    // const credential = GoogleAuthProvider.credentialFromResult(result);
+    // const token = credential.accessToken;
+    // // The signed-in user info.
+    // const user = result.user;
+    // // IdP data available using getAdditionalUserInfo(result)
+    // // ...
+    }).catch((error) => {
+        // Handle Errors here.
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        // The email of the user's account used.
+        const email = error.email;
+        // The AuthCredential type that was used.
+        const credential = GoogleAuthProvider.credentialFromError(error);
+        // ...
+    });
+});
+
+</script>
+</html>
