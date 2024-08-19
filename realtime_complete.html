@@ -39,6 +39,8 @@ const firebaseConfig = {
     messagingSenderId: "**********************",
     appId: "**********************************",
 };
+
+
 const app = initializeApp(firebaseConfig);
 const db  = getDatabase(app); //RealtimeDBに接続
 const dbRef = ref(db,"chat"); //RealtimeDB内の"chat"を使う

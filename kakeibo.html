@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>家計簿アプリ</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        input, select, button {
+            margin: 10px 0;
+            padding: 10px;
+            width: 100%;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <h1>家計簿アプリ</h1>
+    
+    <h2>支出の記録</h2>
+    <form id="expense-form">
+        <select id="category-select" required>
+            <option value="food">食費</option>
+            <option value="transportation">交通費</option>
+            <option value="entertainment">交際費</option>
+            <option value="utilities">光熱費</option>
+            <option value="rent">家賃</option>
+            <option value="communication">通信費</option>
+            <option value="subscription">サブスク</option>
+            <option value="sauna">サウナ</option>
+        </select>
+        <input type="number" id="amount" placeholder="金額(円)" required>
+        <input type="date" id="date" required>
+        <button type="submit">支出を記録</button>
+    </form>
+
+    <h2>支出一覧</h2>
+    <table id="daily-expense-table">
+        <thead>
+            <tr>
+                <th>日付</th>
+                <th>カテゴリ</th>
+                <th>金額(円)</th>
+                <!-- <th>削除</th> -->
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+    <!-- <h2>カテゴリ別支出グラフ</h2>
+    <canvas id="expense-chart"></canvas> -->
+
+<!-- JQuery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<!-- JQuery -->
+
+<!-- chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!--** 以下Firebase **-->
+<script type="module">
+    import { initializeApp } 
+        from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getDatabase, ref, push, set, update, remove, onChildAdded, onChildChanged, onChildRemoved, child} 
+        from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js"; //2行上のバージョンナンバーと揃えないと動かない
+    import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } 
+        from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js"; 
+
+
+
+    // アプリのメインスクリプト
+        $(document).ready(function() {
+            // Firebaseの設定とアプリ初期化
+            const firebaseConfig = {
+                apiKey: "AIzaSyA0xk3nHvgPfuDQyE_YXowfylsCQb3KYf8",
+                authDomain: "gsdemo-2.firebaseapp.com",
+                databaseURL: "https://gsdemo-2-default-rtdb.firebaseio.com",
+                projectId: "gsdemo-2",
+                storageBucket: "gsdemo-2.appspot.com",
+                messagingSenderId: "458526585283",
+                appId: "1:458526585283:web:ecef01720016ec66698d76",
+                measurementId: "G-J6FS8G51MP"
+            };
+
+            // Firebaseアプリの初期化
+            const app = initializeApp(firebaseConfig);
+
+            // Realtime Databaseの初期化
+            const db  = getDatabase(app);
+
+            // データベースの参照
+            const expenseRef = ref(db, "muscletraining/expenses");
+
+            // 支出の記録保存
+            $("#expense-form").submit(function(e) {
+                e.preventDefault();
+
+                const category = $("#category-select").val();
+                const amount = $("#amount").val();
+                const date = $("#date").val();
+
+                const newExpense = {
+                    category: category,
+                    amount: parseFloat(amount),
+                    date: date
+                };
+
+                const newexpenseRef = push(expenseRef);
+                set(newexpenseRef,newExpense);
+
+                $("#amount").val("");
+                $("#date").val("");
+            });
+
+            // 日別の支出履歴表示
+            onChildAdded(expenseRef, function(data) {
+                const expense = data.val();
+                const key = data.key;
+                const dateKey = new Date(expense.date).toLocaleDateString();
+                const dele = '<span class="remove" data-key="'+key+'">削除</span>';
+                console.log(key);
+
+                const categories = {
+                    food: "食費",
+                    transportation: "交通費",
+                    entertainment: "交際費",
+                    utilities: "光熱費",
+                    rent: "家賃",
+                    communication: "通信費",
+                    subscription: "サブスク",
+                    sauna: "サウナ"
+                };
+
+
+                const newRow = `
+                    <tr id = "'+key+'">
+                        <td>${dateKey}</td>
+                        <td>${categories[expense.category]}</td>
+                        <td>${expense.amount}</td>
+                    </tr>
+                `;
+                // <td id ="output">${dele}</td>
+                $("#daily-expense-table tbody").append(newRow);
+
+                // //削除イベント
+                // $("#output").on("click", ".remove", function(){
+                //     const key = $(this).attr("data-key"); //removeをクリックしたところのdata-key属性を取得して、keyに入れる
+                //     const remove_item = ref(db, "/muscletraining/expenses"+key); //db内のchat内の特定のkey部分を指定
+                //     remove(remove_item);//remove関数でdb内のデータ削除
+                // });
+
+                // //削除処理がFirebase側で実行されたらイベント発生！（HTML上でも削除する）
+                // onChildRemoved(expenseRef, (data) => {
+                //     $("#"+data.key).remove(); //DOM関数 idがkeyの部分（1チャット分）を削除する
+                // });
+
+            }); 
+        });
+    </script>
+</body>
+</html>
