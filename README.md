@@ -1,8 +1,8 @@
 # java-script4
-①課題番号-プロダクト名
+## ①課題番号-プロダクト名
 家計簿アプリ
 
-②課題内容（どんな作品か）
+## ②課題内容（どんな作品か）
 カテゴリごとに家計簿をつけることができる
 ③DEMO
 (https://ebitaku.sakura.ne.jp/java-script4/java-script4/kakeibo.html)
